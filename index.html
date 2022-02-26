@@ -32,6 +32,25 @@
       )
 
       let movingBrick = undefined
+      let tickCounter = 0
+
+      let leftKeyPressed = false
+      let rightKeyPressed = false
+      let spaceKeyPressed = false
+      let isPaused = false
+
+      function keyDownHandler(event) {
+        if (event.code == "ArrowLeft") leftKeyPressed = true
+        if (event.code == "ArrowRight") rightKeyPressed = true
+        if (event.code == "Space") spaceKeyPressed = true
+        if (event.code == "KeyP") isPaused = !isPaused
+      }
+
+      function keyUpHandler(event) {
+        if (event.code == "ArrowLeft") leftKeyPressed = false
+        if (event.code == "ArrowRight") rightKeyPressed = false
+        if (event.code == "Space") spaceKeyPressed = false
+      }
 
       function drawBrick(column, row, color) {
         const canvasToGridWidth = (canvas.width - gridWidth) / 2
@@ -51,16 +70,6 @@
         ctx.closePath()
       }
 
-      function tick() {
-        drawGrid()
-
-        if (movingBrick) {
-          drawBrick(movingBrick.column, movingBrick.row, "rgb(123, 25, 250)")
-        } else {
-          movingBrick = { row: 0, column: Math.floor(numberOfColumns / 2 - 1) }
-        }
-      }
-
       function drawGrid() {
         for (let column = 0; column < numberOfColumns; column++) {
           for (let row = 0; row < numberOfRows; row++) {
@@ -72,6 +81,56 @@
           }
         }
       }
+
+      function moveBrick() {
+        tickCounter++
+        if (tickCounter < 4 && !spaceKeyPressed) return
+
+        if (
+          movingBrick.row < numberOfRows - 1 &&
+          !isOccupied[movingBrick.column][movingBrick.row + 1]
+        ) {
+          movingBrick.row++
+        } else {
+          isOccupied[movingBrick.column][movingBrick.row] = true
+          movingBrick = undefined
+        }
+
+        if (
+          leftKeyPressed &&
+          movingBrick.column > 0 &&
+          !isOccupied[movingBrick.column - 1][movingBrick.row]
+        ) {
+          movingBrick.column--
+        }
+
+        if (
+          rightKeyPressed &&
+          movingBrick.column < numberOfColumns - 1 &&
+          !isOccupied[movingBrick.column + 1][movingBrick.row]
+        ) {
+          movingBrick.column++
+        }
+
+        tickCounter = 0
+      }
+
+      function tick() {
+        if (isPaused) return
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        drawGrid()
+
+        if (movingBrick) {
+          drawBrick(movingBrick.column, movingBrick.row, "rgb(123, 25, 250)")
+          moveBrick()
+        } else {
+          movingBrick = { row: 0, column: Math.floor(numberOfColumns / 2 - 1) }
+        }
+      }
+
+      document.addEventListener("keydown", keyDownHandler, false)
+      document.addEventListener("keyup", keyUpHandler, false)
 
       setInterval(tick, 50)
     </script>
