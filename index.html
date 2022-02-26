@@ -31,31 +31,49 @@
         Array.from({ length: numberOfRows }, (_) => false)
       )
 
-      isOccupied[5][18] = true
+      let movingBrick = undefined
 
-      function drawGrid() {
+      function drawBrick(column, row, color) {
         const canvasToGridWidth = (canvas.width - gridWidth) / 2
         const canvasToGridHeight = (canvas.height - gridHeight) / 2
         const rectWidth = gridWidth / numberOfColumns
         const rectHeight = gridHeight / numberOfRows
+        const x = column * rectWidth + canvasToGridWidth
+        const y = row * rectHeight + canvasToGridHeight
 
+        ctx.beginPath()
+        ctx.rect(x, y, rectWidth, rectHeight)
+        if (color) {
+          ctx.fillStyle = color
+          ctx.fill()
+        }
+        ctx.stroke()
+        ctx.closePath()
+      }
+
+      function tick() {
+        drawGrid()
+
+        if (movingBrick) {
+          drawBrick(movingBrick.column, movingBrick.row, "rgb(123, 25, 250)")
+        } else {
+          movingBrick = { row: 0, column: Math.floor(numberOfColumns / 2 - 1) }
+        }
+      }
+
+      function drawGrid() {
         for (let column = 0; column < numberOfColumns; column++) {
           for (let row = 0; row < numberOfRows; row++) {
-            let x = column * rectWidth + canvasToGridWidth
-            let y = row * rectHeight + canvasToGridHeight
-            ctx.beginPath()
-            ctx.rect(x, y, rectWidth, rectHeight)
-            if (isOccupied[column][row]) {
-              ctx.fillStyle = "rgb(255, 100, 50)"
-              ctx.fill()
-            }
-            ctx.stroke()
-            ctx.closePath()
+            drawBrick(
+              column,
+              row,
+              isOccupied[column][row] ? "rgb(255, 100, 50)" : undefined
+            )
           }
         }
       }
 
-      drawGrid()
+      setInterval(tick, 50)
     </script>
   </body>
 </html>
