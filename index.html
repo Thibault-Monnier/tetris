@@ -34,23 +34,19 @@
       let movingBrick = undefined
       let tickCounter = 0
 
-      let leftKeyPressed = false
-      let rightKeyPressed = false
       let spaceKeyPressed = false
       let layingMode = false
       let isPaused = false
 
       function keyDownHandler(event) {
-        if (event.code === "ArrowLeft") leftKeyPressed = true
-        if (event.code === "ArrowRight") rightKeyPressed = true
+        if (event.code === "ArrowLeft") moveLeft()
+        if (event.code === "ArrowRight") moveRight()
         if (event.code === "Space") spaceKeyPressed = true
         if (event.code === "Enter") layingMode = true
         if (event.code === "KeyP") isPaused = !isPaused
       }
 
       function keyUpHandler(event) {
-        if (event.code === "ArrowLeft") leftKeyPressed = false
-        if (event.code === "ArrowRight") rightKeyPressed = false
         if (event.code === "Space") spaceKeyPressed = false
         if (event.code === "Enter") layingMode = false
       }
@@ -85,6 +81,24 @@
         }
       }
 
+      function moveRight() {
+        if (
+          movingBrick.column < numberOfColumns - 1 &&
+          !isOccupied[movingBrick.column + 1][movingBrick.row]
+        ) {
+          movingBrick.column++
+        }
+      }
+
+      function moveLeft() {
+        if (
+          movingBrick.column > 0 &&
+          !isOccupied[movingBrick.column - 1][movingBrick.row]
+        ) {
+          movingBrick.column--
+        }
+      }
+
       function layBrick() {
         for (let row = movingBrick.row; row < numberOfRows; row++) {
           if (!isOccupied[movingBrick.column][row]) {
@@ -110,22 +124,6 @@
         } else {
           isOccupied[movingBrick.column][movingBrick.row] = true
           movingBrick = undefined
-        }
-
-        if (
-          leftKeyPressed &&
-          movingBrick.column > 0 &&
-          !isOccupied[movingBrick.column - 1][movingBrick.row]
-        ) {
-          movingBrick.column--
-        }
-
-        if (
-          rightKeyPressed &&
-          movingBrick.column < numberOfColumns - 1 &&
-          !isOccupied[movingBrick.column + 1][movingBrick.row]
-        ) {
-          movingBrick.column++
         }
 
         tickCounter = 0
