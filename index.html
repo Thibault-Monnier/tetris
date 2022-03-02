@@ -37,19 +37,22 @@
       let leftKeyPressed = false
       let rightKeyPressed = false
       let spaceKeyPressed = false
+      let layingMode = false
       let isPaused = false
 
       function keyDownHandler(event) {
-        if (event.code == "ArrowLeft") leftKeyPressed = true
-        if (event.code == "ArrowRight") rightKeyPressed = true
-        if (event.code == "Space") spaceKeyPressed = true
-        if (event.code == "KeyP") isPaused = !isPaused
+        if (event.code === "ArrowLeft") leftKeyPressed = true
+        if (event.code === "ArrowRight") rightKeyPressed = true
+        if (event.code === "Space") spaceKeyPressed = true
+        if (event.code === "Enter") layingMode = true
+        if (event.code === "KeyP") isPaused = !isPaused
       }
 
       function keyUpHandler(event) {
-        if (event.code == "ArrowLeft") leftKeyPressed = false
-        if (event.code == "ArrowRight") rightKeyPressed = false
-        if (event.code == "Space") spaceKeyPressed = false
+        if (event.code === "ArrowLeft") leftKeyPressed = false
+        if (event.code === "ArrowRight") rightKeyPressed = false
+        if (event.code === "Space") spaceKeyPressed = false
+        if (event.code === "Enter") layingMode = false
       }
 
       function drawBrick(column, row, color) {
@@ -82,9 +85,22 @@
         }
       }
 
+      function layBrick() {
+        for (let row = movingBrick.row; row < numberOfRows; row++) {
+          if (!isOccupied[movingBrick.column][row]) {
+            movingBrick.row = row
+          } else return
+        }
+      }
+
       function moveBrick() {
         tickCounter++
         if (tickCounter < 4 && !spaceKeyPressed) return
+
+        if (layingMode) {
+          layBrick()
+          layingMode = false
+        }
 
         if (
           movingBrick.row < numberOfRows - 1 &&
@@ -117,7 +133,7 @@
 
       function tick() {
         if (isPaused) return
-        
+
         ctx.clearRect(0, 0, canvas.width, canvas.height)
         drawGrid()
 
