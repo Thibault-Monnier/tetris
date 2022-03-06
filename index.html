@@ -107,7 +107,22 @@
         }
       }
 
-      function moveBrick() {
+      function isRowFull(row) {
+        for (let column = 0; column < numberOfColumns; column++) {
+          if (!isOccupied[column][row]) return false
+        }
+        return true
+      }
+
+      function removeFullRow(rowToRemove) {
+        for (let column = 0; column < numberOfColumns; column++) {
+          for (let row = rowToRemove; row > 0; row--) {
+            isOccupied[column][row] = isOccupied[column][row - 1]
+          }
+        }
+      }
+
+      function moveBrickDown() {
         tickCounter++
         if (tickCounter < 4 && !spaceKeyPressed) return
 
@@ -137,9 +152,13 @@
 
         if (movingBrick) {
           drawBrick(movingBrick.column, movingBrick.row, "rgb(123, 25, 250)")
-          moveBrick()
+          moveBrickDown()
         } else {
           movingBrick = { row: 0, column: Math.floor(numberOfColumns / 2 - 1) }
+        }
+
+        for (row = 0; row < numberOfRows; row++) {
+          if (isRowFull(row)) removeFullRow(row)
         }
       }
 
