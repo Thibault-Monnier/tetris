@@ -17,7 +17,26 @@
   </head>
 
   <body>
-    <canvas id="myCanvas" width="800" height="800"></canvas>
+    <div style="height: 100vh; background-color: antiquewhite">
+      <canvas
+        id="myCanvas"
+        width="500"
+        height="600"
+        style="background-color: transparent"
+      ></canvas>
+
+      <div
+        style="text-align: center; font-family: Arial, Helvetica, sans-serif"
+      >
+        <h3 style="margin-bottom: 10px">How to play?</h3>
+        <ul style="list-style-type: none">
+          <li><b>Left / right</b>: move left / right</li>
+          <li><b>P</b>: pause game</li>
+          <li><b>Space</b>: fast mode</li>
+          <li><b>Enter</b>: instantly lay block</li>
+        </ul>
+      </div>
+    </div>
 
     <script>
       const canvas = document.getElementById("myCanvas")
@@ -33,6 +52,7 @@
 
       let movingBrick = undefined
       let tickCounter = 0
+      let score = 0
 
       let spaceKeyPressed = false
       let layingMode = false
@@ -43,12 +63,15 @@
         if (event.code === "ArrowRight") moveRight()
         if (event.code === "Space") spaceKeyPressed = true
         if (event.code === "Enter") layingMode = true
-        if (event.code === "KeyP") isPaused = !isPaused
+        if (event.code === "KeyP") {
+          isPaused = !isPaused
+          layingMode = false
+          spaceKeyPressed = false
+        }
       }
 
       function keyUpHandler(event) {
         if (event.code === "Space") spaceKeyPressed = false
-        if (event.code === "Enter") layingMode = false
       }
 
       function drawBrick(column, row, color) {
@@ -79,6 +102,13 @@
             )
           }
         }
+      }
+
+      function drawScore() {
+        ctx.font = "25px sans-serif"
+        ctx.fillStyle = "rgb(0, 0, 0)"
+        ctx.textAlign = "center"
+        ctx.fillText(`Score: ${score}`, canvas.width / 2, 35)
       }
 
       function moveRight() {
@@ -120,6 +150,8 @@
             isOccupied[column][row] = isOccupied[column][row - 1]
           }
         }
+
+        score += 100
       }
 
       function moveBrickDown() {
@@ -139,6 +171,7 @@
         } else {
           isOccupied[movingBrick.column][movingBrick.row] = true
           movingBrick = undefined
+          score += 10
         }
 
         tickCounter = 0
@@ -149,6 +182,7 @@
 
         ctx.clearRect(0, 0, canvas.width, canvas.height)
         drawGrid()
+        drawScore()
 
         if (movingBrick) {
           drawBrick(movingBrick.column, movingBrick.row, "rgb(123, 25, 250)")
