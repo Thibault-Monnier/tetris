@@ -57,6 +57,7 @@
       let spaceKeyPressed = false
       let layingMode = false
       let isPaused = false
+      let gameOver = false
 
       function keyDownHandler(event) {
         if (event.code === "ArrowLeft") moveLeft()
@@ -111,6 +112,19 @@
         ctx.fillText(`Score: ${score}`, canvas.width / 2, 35)
       }
 
+      function drawBanner(text) {
+        ctx.beginPath()
+        ctx.rect(canvas.width / 5, canvas.height / 3, canvas.width * 3 / 5, canvas.height / 3 )
+        ctx.fillStyle = "rgba(255, 100, 100, 0.75)"
+        ctx.fill()
+        ctx.closePath()
+
+        ctx.font = "50px sans-serif"
+        ctx.fillStyle = "rgb(0, 0, 0)"
+        ctx.textAlign = "center"
+        ctx.fillText(text, canvas.width / 2, canvas.height / 2)
+      }
+
       function moveRight() {
         if (
           movingBrick.column < numberOfColumns - 1 &&
@@ -151,7 +165,14 @@
           }
         }
 
-        score += 100
+        score += 90
+      }
+
+      function isBrickOnFirstRow() {
+        for (let column = 0; column < numberOfColumns; column++) {
+          if (isOccupied[column][0]) return true
+        }
+        return false
       }
 
       function moveBrickDown() {
@@ -177,15 +198,28 @@
         tickCounter = 0
       }
 
-      function tick() {
-        if (isPaused) return
-
+      function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height)
         drawGrid()
         drawScore()
 
+        if (gameOver) drawBanner("Game Over")
+
+        if (isPaused) drawBanner("Paused")
+
         if (movingBrick) {
           drawBrick(movingBrick.column, movingBrick.row, "rgb(123, 25, 250)")
+        }
+      }
+
+      function tick() {
+        if (isBrickOnFirstRow()) gameOver = true
+
+        draw()
+
+        if (gameOver || isPaused) return
+
+        if (movingBrick) {
           moveBrickDown()
         } else {
           movingBrick = { row: 0, column: Math.floor(numberOfColumns / 2 - 1) }
