@@ -208,7 +208,10 @@
         drawGrid()
         drawScore()
 
-        if (gameOver) drawBanner("Game Over")
+        if (gameOver) {
+          drawBanner("Game Over")
+          return
+        }
         if (isPaused) drawBanner("Paused")
 
         if (movingBrick) {
