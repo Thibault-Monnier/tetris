@@ -114,7 +114,12 @@
 
       function drawBanner(text) {
         ctx.beginPath()
-        ctx.rect(canvas.width / 5, canvas.height / 3, canvas.width * 3 / 5, canvas.height / 3 )
+        ctx.rect(
+          canvas.width / 5,
+          canvas.height / 3,
+          (canvas.width * 3) / 5,
+          canvas.height / 3
+        )
         ctx.fillStyle = "rgba(255, 100, 100, 0.75)"
         ctx.fill()
         ctx.closePath()
@@ -204,7 +209,6 @@
         drawScore()
 
         if (gameOver) drawBanner("Game Over")
-
         if (isPaused) drawBanner("Paused")
 
         if (movingBrick) {
