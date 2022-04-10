@@ -50,7 +50,7 @@
         Array.from({ length: numberOfRows }, (_) => false)
       )
 
-      let movingBrick = undefined
+      let movingPiece = undefined
       let tickCounter = 0
       let score = 0
 
@@ -133,26 +133,26 @@
 
       function moveRight() {
         if (
-          movingBrick.column < numberOfColumns - 1 &&
-          !isOccupied[movingBrick.column + 1][movingBrick.row]
+          movingPiece.column < numberOfColumns - 1 &&
+          !isOccupied[movingPiece.column + 1][movingPiece.row]
         ) {
-          movingBrick.column++
+          movingPiece.column++
         }
       }
 
       function moveLeft() {
         if (
-          movingBrick.column > 0 &&
-          !isOccupied[movingBrick.column - 1][movingBrick.row]
+          movingPiece.column > 0 &&
+          !isOccupied[movingPiece.column - 1][movingPiece.row]
         ) {
-          movingBrick.column--
+          movingPiece.column--
         }
       }
 
-      function layBrick() {
-        for (let row = movingBrick.row; row < numberOfRows; row++) {
-          if (!isOccupied[movingBrick.column][row]) {
-            movingBrick.row = row
+      function layPiece() {
+        for (let row = movingPiece.row; row < numberOfRows; row++) {
+          if (!isOccupied[movingPiece.column][row]) {
+            movingPiece.row = row
           } else return
         }
       }
@@ -181,23 +181,23 @@
         return false
       }
 
-      function moveBrickDown() {
+      function movePieceDown() {
         tickCounter++
         if (tickCounter < 4 && !spaceKeyPressed) return
 
         if (layingMode) {
-          layBrick()
+          layPiece()
           layingMode = false
         }
 
         if (
-          movingBrick.row < numberOfRows - 1 &&
-          !isOccupied[movingBrick.column][movingBrick.row + 1]
+          movingPiece.row < numberOfRows - 1 &&
+          !isOccupied[movingPiece.column][movingPiece.row + 1]
         ) {
-          movingBrick.row++
+          movingPiece.row++
         } else {
-          isOccupied[movingBrick.column][movingBrick.row] = true
-          movingBrick = undefined
+          isOccupied[movingPiece.column][movingPiece.row] = true
+          movingPiece = undefined
           score += 10
         }
 
@@ -215,8 +215,8 @@
         }
         if (isPaused) drawBanner("Paused")
 
-        if (movingBrick) {
-          drawBrick(movingBrick.column, movingBrick.row, "rgb(123, 25, 250)")
+        if (movingPiece) {
+          drawBrick(movingPiece.column, movingPiece.row, "rgb(123, 25, 250)")
         }
       }
 
@@ -227,10 +227,10 @@
 
         if (gameOver || isPaused) return
 
-        if (movingBrick) {
-          moveBrickDown()
+        if (movingPiece) {
+          movePieceDown()
         } else {
-          movingBrick = { row: 0, column: Math.floor(numberOfColumns / 2 - 1) }
+          movingPiece = { row: 0, column: Math.floor(numberOfColumns / 2 - 1) }
         }
 
         for (row = 0; row < numberOfRows; row++) {
