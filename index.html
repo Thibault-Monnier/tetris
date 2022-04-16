@@ -46,6 +46,10 @@
       const gridHeight = 500
       const numberOfColumns = 8
       const numberOfRows = 20
+      const canvasToGridWidth = (canvas.width - gridWidth) / 2
+      const canvasToGridHeight = (canvas.height - gridHeight) / 2
+      const brickWidth = gridWidth / numberOfColumns
+      const brickHeight = gridHeight / numberOfRows
       const isOccupied = Array.from({ length: numberOfColumns }, (_) =>
         Array.from({ length: numberOfRows }, (_) => false)
       )
@@ -76,15 +80,11 @@
       }
 
       function drawBrick(column, row, color) {
-        const canvasToGridWidth = (canvas.width - gridWidth) / 2
-        const canvasToGridHeight = (canvas.height - gridHeight) / 2
-        const rectWidth = gridWidth / numberOfColumns
-        const rectHeight = gridHeight / numberOfRows
-        const x = column * rectWidth + canvasToGridWidth
-        const y = row * rectHeight + canvasToGridHeight
+        const x = column * brickWidth + canvasToGridWidth
+        const y = row * brickHeight + canvasToGridHeight
 
         ctx.beginPath()
-        ctx.rect(x, y, rectWidth, rectHeight)
+        ctx.rect(x, y, brickWidth, brickHeight)
         if (color) {
           ctx.fillStyle = color
           ctx.fill()
@@ -109,17 +109,13 @@
         ctx.font = "25px sans-serif"
         ctx.fillStyle = "rgb(0, 0, 0)"
         ctx.textAlign = "center"
-        ctx.fillText(`Score: ${score}`, canvas.width / 2, 35)
+        ctx.textBaseline = "middle"
+        ctx.fillText(`Score: ${score}`, canvas.width / 2, canvasToGridHeight / 2)
       }
 
       function drawBanner(text) {
         ctx.beginPath()
-        ctx.rect(
-          canvas.width / 5,
-          canvas.height / 3,
-          (canvas.width * 3) / 5,
-          canvas.height / 3
-        )
+        ctx.rect(canvasToGridWidth, canvasToGridHeight, gridWidth, gridHeight)
         ctx.fillStyle = "rgba(255, 100, 100, 0.75)"
         ctx.fill()
         ctx.closePath()
@@ -209,14 +205,18 @@
         drawGrid()
         drawScore()
 
+        if (movingPiece) {
+          drawBrick(
+            movingPiece.column,
+            movingPiece.row,
+            false ? "rgb(255, 25, 225)" : "rgb(123, 25, 250)"
+          )
+        }
+
         if (gameOver) {
           drawBanner("Game Over")
-          return
-        }
-        if (isPaused) drawBanner("Paused")
-
-        if (movingPiece) {
-          drawBrick(movingPiece.column, movingPiece.row, "rgb(123, 25, 250)")
+        } else if (isPaused) {
+          drawBanner("Paused")
         }
       }
 
