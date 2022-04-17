@@ -110,21 +110,37 @@
         ctx.fillStyle = "rgb(0, 0, 0)"
         ctx.textAlign = "center"
         ctx.textBaseline = "middle"
-        ctx.fillText(`Score: ${score}`, canvas.width / 2, canvasToGridHeight / 2)
+        ctx.fillText(
+          `Score: ${score}`,
+          canvas.width / 2,
+          canvasToGridHeight / 2
+        )
       }
 
-      function drawBanner(text) {
+      function drawBanner(...lines) {
+        const fontSize = 45
+        const interline = fontSize
+
         ctx.beginPath()
         ctx.rect(canvasToGridWidth, canvasToGridHeight, gridWidth, gridHeight)
         ctx.fillStyle = "rgba(255, 100, 100, 0.75)"
         ctx.fill()
         ctx.closePath()
 
-        ctx.font = "50px sans-serif"
-        ctx.fillStyle = "rgb(0, 0, 0)"
+        ctx.font = `bold ${fontSize}px sans-serif`
+        ctx.fillStyle = "rgb(70, 70, 70)"
         ctx.textAlign = "center"
         ctx.textBaseline = "middle"
-        ctx.fillText(text, canvas.width / 2, canvas.height / 2)
+
+        let y =
+          canvasToGridHeight +
+          gridHeight / 2 -
+          ((lines.length - 1) / 2) * interline
+
+        for (const line of lines) {
+          ctx.fillText(line, canvas.width / 2, y, gridWidth - 15)
+          y += interline
+        }
       }
 
       function moveRight() {
@@ -214,7 +230,7 @@
         }
 
         if (gameOver) {
-          drawBanner("Game Over")
+          drawBanner("Game", "Over")
         } else if (isPaused) {
           drawBanner("Paused")
         }
