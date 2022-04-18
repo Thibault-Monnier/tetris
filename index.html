@@ -50,6 +50,22 @@
       const canvasToGridHeight = (canvas.height - gridHeight) / 2
       const brickWidth = gridWidth / numberOfColumns
       const brickHeight = gridHeight / numberOfRows
+      const shapes = [
+        [
+          [false, false, false, false, false],
+          [false, false, true, false, false],
+          [false, false, true, false, false],
+          [false, false, true, false, false],
+          [false, false, true, false, false],
+        ], // "I"
+        [
+          [false, false, false, false, false],
+          [false, false, true, false, false],
+          [false, false, true, false, false],
+          [false, false, true, true, false],
+          [false, false, false, false, false],
+        ], // "L"
+      ]
       const isOccupied = Array.from({ length: numberOfColumns }, (_) =>
         Array.from({ length: numberOfRows }, (_) => false)
       )
@@ -115,6 +131,27 @@
           canvas.width / 2,
           canvasToGridHeight / 2
         )
+      }
+
+      function drawPiece() {
+        for (let y = 0; y < 5; y++) {
+          for (let x = 0; x < 5; x++) {
+            const column = movingPiece.column - 2 + x
+            const row = movingPiece.row - 2 + y
+
+            if (
+              column < 0 ||
+              column >= numberOfColumns ||
+              row < 0 ||
+              row >= numberOfRows
+            )
+              continue
+
+            if (movingPiece.shape[y][x]) {
+              drawBrick(column, row, "rgb(123, 25, 250)")
+            }
+          }
+        }
       }
 
       function drawBanner(...lines) {
@@ -186,6 +223,15 @@
         score += 90
       }
 
+      function insertPiece() {
+        const shapeNumber = Math.floor(Math.random() * shapes.length)
+        movingPiece = {
+          row: 0,
+          column: Math.floor(numberOfColumns / 2 - 1),
+          shape: shapes[shapeNumber],
+        }
+      }
+
       function isBrickOnFirstRow() {
         for (let column = 0; column < numberOfColumns; column++) {
           if (isOccupied[column][0]) return true
@@ -222,11 +268,7 @@
         drawScore()
 
         if (movingPiece) {
-          drawBrick(
-            movingPiece.column,
-            movingPiece.row,
-            false ? "rgb(255, 25, 225)" : "rgb(123, 25, 250)"
-          )
+          drawPiece()
         }
 
         if (gameOver) {
@@ -246,7 +288,7 @@
         if (movingPiece) {
           movePieceDown()
         } else {
-          movingPiece = { row: 0, column: Math.floor(numberOfColumns / 2 - 1) }
+          insertPiece()
         }
 
         for (row = 0; row < numberOfRows; row++) {
