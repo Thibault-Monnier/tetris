@@ -50,21 +50,23 @@
       const canvasToGridHeight = (canvas.height - gridHeight) / 2
       const brickWidth = gridWidth / numberOfColumns
       const brickHeight = gridHeight / numberOfRows
+      const P = true
+      const O = false
       const shapes = [
-        [
-          [false, false, false, false, false],
-          [false, false, true, false, false],
-          [false, false, true, false, false],
-          [false, false, true, false, false],
-          [false, false, true, false, false],
-        ], // "I"
-        [
-          [false, false, false, false, false],
-          [false, false, true, false, false],
-          [false, false, true, false, false],
-          [false, false, true, true, false],
-          [false, false, false, false, false],
-        ], // "L"
+        rotateRight([
+          [O, O, O, O, O],
+          [O, O, P, O, O],
+          [O, O, P, O, O],
+          [O, O, P, O, O],
+          [O, O, P, O, O],
+        ]), // "I"
+        rotateRight([
+          [O, O, O, O, O],
+          [O, O, P, O, O],
+          [O, O, P, O, O],
+          [O, O, P, P, O],
+          [O, O, O, O, O],
+        ])  , // "L"
       ]
       const isOccupied = Array.from({ length: numberOfColumns }, (_) =>
         Array.from({ length: numberOfRows }, (_) => false)
@@ -84,6 +86,8 @@
         if (event.code === "ArrowRight") moveRight()
         if (event.code === "Space") spaceKeyPressed = true
         if (event.code === "Enter") layingMode = true
+        if (event.code === "KeyQ") movingPiece.shape = rotateLeft(movingPiece.shape)
+        if (event.code === "KeyW") movingPiece.shape = rotateRight(movingPiece.shape) 
         if (event.code === "KeyP") {
           isPaused = !isPaused
           layingMode = false
@@ -147,7 +151,7 @@
             )
               continue
 
-            if (movingPiece.shape[y][x]) {
+            if (movingPiece.shape[x][y]) {
               drawBrick(column, row, "rgb(123, 25, 250)")
             }
           }
@@ -198,6 +202,24 @@
         }
       }
 
+      function rotateRight(array) {
+        let newArray = Array.from({ length: 5 }, (_) =>
+          Array.from({ length: 5 }, (_) => false)
+        )
+
+        for (let x = 0; x < 5; x++) {
+          for (let y = 0; y < 5; y++) {
+            newArray[4 - y][x] = array[x][y]
+          }
+        }
+
+        return newArray
+      }
+
+      function rotateLeft(array) {
+        return rotateRight(rotateRight(rotateRight(array)))
+      }
+
       function layPiece() {
         for (let row = movingPiece.row; row < numberOfRows; row++) {
           if (!isOccupied[movingPiece.column][row]) {
@@ -223,7 +245,7 @@
         score += 90
       }
 
-      function insertPiece() {
+      function insertPieceAtTop() {
         const shapeNumber = Math.floor(Math.random() * shapes.length)
         movingPiece = {
           row: 0,
@@ -254,7 +276,15 @@
         ) {
           movingPiece.row++
         } else {
-          isOccupied[movingPiece.column][movingPiece.row] = true
+          for (let x = 0; x < 5; x++) {
+            for (let y = 0; y < 5; y++) {
+              if (movingPiece.shape[x][y])
+                isOccupied[movingPiece.column - 2 + x][
+                  movingPiece.row - 2 + y
+                ] = true
+            }
+          }
+
           movingPiece = undefined
           score += 10
         }
@@ -288,7 +318,7 @@
         if (movingPiece) {
           movePieceDown()
         } else {
-          insertPiece()
+          insertPieceAtTop()
         }
 
         for (row = 0; row < numberOfRows; row++) {
