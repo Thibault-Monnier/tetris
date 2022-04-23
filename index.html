@@ -66,7 +66,7 @@
           [O, O, P, O, O],
           [O, O, P, P, O],
           [O, O, O, O, O],
-        ])  , // "L"
+        ]), // "L"
       ]
       const isOccupied = Array.from({ length: numberOfColumns }, (_) =>
         Array.from({ length: numberOfRows }, (_) => false)
@@ -86,8 +86,10 @@
         if (event.code === "ArrowRight") moveRight()
         if (event.code === "Space") spaceKeyPressed = true
         if (event.code === "Enter") layingMode = true
-        if (event.code === "KeyQ") movingPiece.shape = rotateLeft(movingPiece.shape)
-        if (event.code === "KeyW") movingPiece.shape = rotateRight(movingPiece.shape) 
+        if (event.code === "KeyQ")
+          movingPiece.shape = rotateLeft(movingPiece.shape)
+        if (event.code === "KeyW")
+          movingPiece.shape = rotateRight(movingPiece.shape)
         if (event.code === "KeyP") {
           isPaused = !isPaused
           layingMode = false
