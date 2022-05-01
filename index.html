@@ -31,9 +31,10 @@
         <h3 style="margin-bottom: 10px">How to play?</h3>
         <ul style="list-style-type: none">
           <li><b>Left / right</b>: move left / right</li>
+          <li><b>A / Z</b>: rotate left / right</li>
+          <li><b>Down</b>: instantly lay block</li>
           <li><b>P</b>: pause game</li>
           <li><b>Space</b>: fast mode</li>
-          <li><b>Enter</b>: instantly lay block</li>
         </ul>
       </div>
     </div>
@@ -53,14 +54,14 @@
       const P = true
       const O = false
       const shapes = [
-        rotateRight([
+        rotateArrayRight([
           [O, O, O, O, O],
           [O, O, P, O, O],
           [O, O, P, O, O],
           [O, O, P, O, O],
           [O, O, P, O, O],
         ]), // "I"
-        rotateRight([
+        rotateArrayRight([
           [O, O, O, O, O],
           [O, O, P, O, O],
           [O, O, P, O, O],
@@ -85,11 +86,9 @@
         if (event.code === "ArrowLeft") moveLeft()
         if (event.code === "ArrowRight") moveRight()
         if (event.code === "Space") spaceKeyPressed = true
-        if (event.code === "Enter") layingMode = true
-        if (event.code === "KeyQ")
-          movingPiece.shape = rotateLeft(movingPiece.shape)
-        if (event.code === "KeyW")
-          movingPiece.shape = rotateRight(movingPiece.shape)
+        if (event.code === "ArrowDown") layingMode = true
+        if (event.code === "KeyQ") rotateLeft()
+        if (event.code === "KeyW") rotateRight()
         if (event.code === "KeyP") {
           isPaused = !isPaused
           layingMode = false
@@ -187,24 +186,18 @@
       }
 
       function moveRight() {
-        if (
-          movingPiece.column < numberOfColumns - 1 &&
-          !isOccupied[movingPiece.column + 1][movingPiece.row]
-        ) {
+        if (!isShapeCollision(movingPiece.column + 1, movingPiece.row)) {
           movingPiece.column++
         }
       }
 
       function moveLeft() {
-        if (
-          movingPiece.column > 0 &&
-          !isOccupied[movingPiece.column - 1][movingPiece.row]
-        ) {
+        if (!isShapeCollision(movingPiece.column - 1, movingPiece.row)) {
           movingPiece.column--
         }
       }
 
-      function rotateRight(array) {
+      function rotateArrayRight(array) {
         let newArray = Array.from({ length: 5 }, (_) =>
           Array.from({ length: 5 }, (_) => false)
         )
@@ -218,13 +211,27 @@
         return newArray
       }
 
-      function rotateLeft(array) {
-        return rotateRight(rotateRight(rotateRight(array)))
+      function rotateArrayLeft(array) {
+        return rotateArrayRight(rotateArrayRight(rotateArrayRight(array)))
+      }
+
+      function rotateLeft() {
+        const shape = rotateArrayLeft(movingPiece.shape)
+        if (!isShapeCollision(movingPiece.column, movingPiece.row, shape)) {
+          movingPiece.shape = shape
+        }
+      }
+
+      function rotateRight() {
+        const shape = rotateArrayRight(movingPiece.shape)
+        if (!isShapeCollision(movingPiece.column, movingPiece.row, shape)) {
+          movingPiece.shape = shape
+        }
       }
 
       function layPiece() {
         for (let row = movingPiece.row; row < numberOfRows; row++) {
-          if (!isOccupied[movingPiece.column][row]) {
+          if (!isShapeCollision(movingPiece.column, row)) {
             movingPiece.row = row
           } else return
         }
@@ -272,10 +279,7 @@
           layingMode = false
         }
 
-        if (
-          movingPiece.row < numberOfRows - 1 &&
-          !isOccupied[movingPiece.column][movingPiece.row + 1]
-        ) {
+        if (!isShapeCollision(movingPiece.column, movingPiece.row + 1)) {
           movingPiece.row++
         } else {
           for (let x = 0; x < 5; x++) {
@@ -292,6 +296,29 @@
         }
 
         tickCounter = 0
+      }
+
+      function isShapeCollision(
+        shapeColumn,
+        shapeRow,
+        shape = movingPiece.shape
+      ) {
+        for (let x = 0; x < 5; x++) {
+          for (let y = 0; y < 5; y++) {
+            if (!shape[x][y]) continue
+
+            const column = shapeColumn - 2 + x
+            const row = shapeRow - 2 + y
+            if (
+              row >= numberOfRows ||
+              column < 0 ||
+              column >= numberOfColumns ||
+              isOccupied[column][row]
+            )
+              return true
+          }
+        }
+        return false
       }
 
       function draw() {
