@@ -68,6 +68,41 @@
           [O, O, P, P, O],
           [O, O, O, O, O],
         ]), // "L"
+        rotateArrayRight([
+          [O, O, O, O, O],
+          [O, O, P, O, O],
+          [O, O, P, O, O],
+          [O, P, P, O, O],
+          [O, O, O, O, O],
+        ]), // Reverted "L"
+        rotateArrayRight([
+          [O, O, O, O, O],
+          [O, O, O, O, O],
+          [O, P, P, O, O],
+          [O, P, P, O, O],
+          [O, O, O, O, O],
+        ]), // Square
+        rotateArrayRight([
+          [O, O, O, O, O],
+          [O, O, P, P, O],
+          [O, P, P, O, O],
+          [O, O, O, O, O],
+          [O, O, O, O, O],
+        ]), // "S"
+        rotateArrayRight([
+          [O, O, O, O, O],
+          [O, O, P, P, O],
+          [O, P, P, O, O],
+          [O, O, O, O, O],
+          [O, O, O, O, O],
+        ]), // Reverted "S"
+        rotateArrayRight([
+          [O, O, O, O, O],
+          [O, O, P, O, O],
+          [O, P, P, P, O],
+          [O, O, O, O, O],
+          [O, O, O, O, O],
+        ]), // "T"
       ]
       const isOccupied = Array.from({ length: numberOfColumns }, (_) =>
         Array.from({ length: numberOfRows }, (_) => false)
