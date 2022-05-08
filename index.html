@@ -31,9 +31,10 @@
         <h3 style="margin-bottom: 10px">How to play?</h3>
         <ul style="list-style-type: none">
           <li><b>Left / right</b>: move left / right</li>
+          <li><b>A / Z</b>: rotate left / right</li>
+          <li><b>Down</b>: instantly lay block</li>
           <li><b>P</b>: pause game</li>
           <li><b>Space</b>: fast mode</li>
-          <li><b>Enter</b>: instantly lay block</li>
         </ul>
       </div>
     </div>
@@ -50,6 +51,59 @@
       const canvasToGridHeight = (canvas.height - gridHeight) / 2
       const brickWidth = gridWidth / numberOfColumns
       const brickHeight = gridHeight / numberOfRows
+      const P = true
+      const O = false
+      const shapes = [
+        rotateArrayRight([
+          [O, O, O, O, O],
+          [O, O, P, O, O],
+          [O, O, P, O, O],
+          [O, O, P, O, O],
+          [O, O, P, O, O],
+        ]), // "I"
+        rotateArrayRight([
+          [O, O, O, O, O],
+          [O, O, P, O, O],
+          [O, O, P, O, O],
+          [O, O, P, P, O],
+          [O, O, O, O, O],
+        ]), // "L"
+        rotateArrayRight([
+          [O, O, O, O, O],
+          [O, O, P, O, O],
+          [O, O, P, O, O],
+          [O, P, P, O, O],
+          [O, O, O, O, O],
+        ]), // Reverted "L"
+        rotateArrayRight([
+          [O, O, O, O, O],
+          [O, O, O, O, O],
+          [O, P, P, O, O],
+          [O, P, P, O, O],
+          [O, O, O, O, O],
+        ]), // Square
+        rotateArrayRight([
+          [O, O, O, O, O],
+          [O, O, P, P, O],
+          [O, P, P, O, O],
+          [O, O, O, O, O],
+          [O, O, O, O, O],
+        ]), // "S"
+        rotateArrayRight([
+          [O, O, O, O, O],
+          [O, O, P, P, O],
+          [O, P, P, O, O],
+          [O, O, O, O, O],
+          [O, O, O, O, O],
+        ]), // Reverted "S"
+        rotateArrayRight([
+          [O, O, O, O, O],
+          [O, O, P, O, O],
+          [O, P, P, P, O],
+          [O, O, O, O, O],
+          [O, O, O, O, O],
+        ]), // "T"
+      ]
       const isOccupied = Array.from({ length: numberOfColumns }, (_) =>
         Array.from({ length: numberOfRows }, (_) => false)
       )
@@ -67,7 +121,9 @@
         if (event.code === "ArrowLeft") moveLeft()
         if (event.code === "ArrowRight") moveRight()
         if (event.code === "Space") spaceKeyPressed = true
-        if (event.code === "Enter") layingMode = true
+        if (event.code === "ArrowDown") layingMode = true
+        if (event.code === "KeyQ") rotateLeft()
+        if (event.code === "KeyW") rotateRight()
         if (event.code === "KeyP") {
           isPaused = !isPaused
           layingMode = false
@@ -117,6 +173,27 @@
         )
       }
 
+      function drawPiece() {
+        for (let y = 0; y < 5; y++) {
+          for (let x = 0; x < 5; x++) {
+            const column = movingPiece.column - 2 + x
+            const row = movingPiece.row - 2 + y
+
+            if (
+              column < 0 ||
+              column >= numberOfColumns ||
+              row < 0 ||
+              row >= numberOfRows
+            )
+              continue
+
+            if (movingPiece.shape[x][y]) {
+              drawBrick(column, row, "rgb(123, 25, 250)")
+            }
+          }
+        }
+      }
+
       function drawBanner(...lines) {
         const fontSize = 45
         const interline = fontSize
@@ -144,26 +221,52 @@
       }
 
       function moveRight() {
-        if (
-          movingPiece.column < numberOfColumns - 1 &&
-          !isOccupied[movingPiece.column + 1][movingPiece.row]
-        ) {
+        if (!isShapeCollision(movingPiece.column + 1, movingPiece.row)) {
           movingPiece.column++
         }
       }
 
       function moveLeft() {
-        if (
-          movingPiece.column > 0 &&
-          !isOccupied[movingPiece.column - 1][movingPiece.row]
-        ) {
+        if (!isShapeCollision(movingPiece.column - 1, movingPiece.row)) {
           movingPiece.column--
+        }
+      }
+
+      function rotateArrayRight(array) {
+        let newArray = Array.from({ length: 5 }, (_) =>
+          Array.from({ length: 5 }, (_) => false)
+        )
+
+        for (let x = 0; x < 5; x++) {
+          for (let y = 0; y < 5; y++) {
+            newArray[4 - y][x] = array[x][y]
+          }
+        }
+
+        return newArray
+      }
+
+      function rotateArrayLeft(array) {
+        return rotateArrayRight(rotateArrayRight(rotateArrayRight(array)))
+      }
+
+      function rotateLeft() {
+        const shape = rotateArrayLeft(movingPiece.shape)
+        if (!isShapeCollision(movingPiece.column, movingPiece.row, shape)) {
+          movingPiece.shape = shape
+        }
+      }
+
+      function rotateRight() {
+        const shape = rotateArrayRight(movingPiece.shape)
+        if (!isShapeCollision(movingPiece.column, movingPiece.row, shape)) {
+          movingPiece.shape = shape
         }
       }
 
       function layPiece() {
         for (let row = movingPiece.row; row < numberOfRows; row++) {
-          if (!isOccupied[movingPiece.column][row]) {
+          if (!isShapeCollision(movingPiece.column, row)) {
             movingPiece.row = row
           } else return
         }
@@ -186,6 +289,15 @@
         score += 90
       }
 
+      function insertPieceAtTop() {
+        const shapeNumber = Math.floor(Math.random() * shapes.length)
+        movingPiece = {
+          row: 0,
+          column: Math.floor(numberOfColumns / 2 - 1),
+          shape: shapes[shapeNumber],
+        }
+      }
+
       function isBrickOnFirstRow() {
         for (let column = 0; column < numberOfColumns; column++) {
           if (isOccupied[column][0]) return true
@@ -202,18 +314,46 @@
           layingMode = false
         }
 
-        if (
-          movingPiece.row < numberOfRows - 1 &&
-          !isOccupied[movingPiece.column][movingPiece.row + 1]
-        ) {
+        if (!isShapeCollision(movingPiece.column, movingPiece.row + 1)) {
           movingPiece.row++
         } else {
-          isOccupied[movingPiece.column][movingPiece.row] = true
+          for (let x = 0; x < 5; x++) {
+            for (let y = 0; y < 5; y++) {
+              if (movingPiece.shape[x][y])
+                isOccupied[movingPiece.column - 2 + x][
+                  movingPiece.row - 2 + y
+                ] = true
+            }
+          }
+
           movingPiece = undefined
           score += 10
         }
 
         tickCounter = 0
+      }
+
+      function isShapeCollision(
+        shapeColumn,
+        shapeRow,
+        shape = movingPiece.shape
+      ) {
+        for (let x = 0; x < 5; x++) {
+          for (let y = 0; y < 5; y++) {
+            if (!shape[x][y]) continue
+
+            const column = shapeColumn - 2 + x
+            const row = shapeRow - 2 + y
+            if (
+              row >= numberOfRows ||
+              column < 0 ||
+              column >= numberOfColumns ||
+              isOccupied[column][row]
+            )
+              return true
+          }
+        }
+        return false
       }
 
       function draw() {
@@ -222,11 +362,7 @@
         drawScore()
 
         if (movingPiece) {
-          drawBrick(
-            movingPiece.column,
-            movingPiece.row,
-            false ? "rgb(255, 25, 225)" : "rgb(123, 25, 250)"
-          )
+          drawPiece()
         }
 
         if (gameOver) {
@@ -246,7 +382,7 @@
         if (movingPiece) {
           movePieceDown()
         } else {
-          movingPiece = { row: 0, column: Math.floor(numberOfColumns / 2 - 1) }
+          insertPieceAtTop()
         }
 
         for (row = 0; row < numberOfRows; row++) {
