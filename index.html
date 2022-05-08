@@ -9,7 +9,7 @@
       }
 
       canvas {
-        background: rgb(100, 100, 100);
+        background: rgb(126, 113, 113);
         display: block;
         margin: 0 auto;
       }
@@ -17,7 +17,7 @@
   </head>
 
   <body>
-    <div style="height: 100vh; background-color: antiquewhite">
+    <div style="height: 100vh; background-color: rgb(179, 207, 182)">
       <canvas
         id="myCanvas"
         width="500"
@@ -30,11 +30,12 @@
       >
         <h3 style="margin-bottom: 10px">How to play?</h3>
         <ul style="list-style-type: none">
+          <li><b>Enter</b>: start game</li>
           <li><b>Left / right</b>: move left / right</li>
+          <li><b>Down</b>: fast mode</li>
           <li><b>A / Z</b>: rotate left / right</li>
-          <li><b>Down</b>: instantly lay block</li>
+          <li><b>Space</b>: instantly lay block</li>
           <li><b>P</b>: pause game</li>
-          <li><b>Space</b>: fast mode</li>
         </ul>
       </div>
     </div>
@@ -104,6 +105,7 @@
           [O, O, O, O, O],
         ]), // "T"
       ]
+
       const isOccupied = Array.from({ length: numberOfColumns }, (_) =>
         Array.from({ length: numberOfRows }, (_) => false)
       )
@@ -112,27 +114,32 @@
       let tickCounter = 0
       let score = 0
 
-      let spaceKeyPressed = false
+      let gameStarted = false
+      let fastMode = false
       let layingMode = false
       let isPaused = false
       let gameOver = false
 
       function keyDownHandler(event) {
-        if (event.code === "ArrowLeft") moveLeft()
-        if (event.code === "ArrowRight") moveRight()
-        if (event.code === "Space") spaceKeyPressed = true
-        if (event.code === "ArrowDown") layingMode = true
-        if (event.code === "KeyQ") rotateLeft()
-        if (event.code === "KeyW") rotateRight()
-        if (event.code === "KeyP") {
-          isPaused = !isPaused
-          layingMode = false
-          spaceKeyPressed = false
+        if (gameStarted) {
+          if (event.code === "ArrowLeft") moveLeft()
+          if (event.code === "ArrowRight") moveRight()
+          if (event.code === "Space") layingMode = true
+          if (event.code === "ArrowDown") fastMode = true
+          if (event.code === "KeyQ") rotateLeft()
+          if (event.code === "KeyW") rotateRight()
+          if (event.code === "KeyP") {
+            isPaused = !isPaused
+            layingMode = false
+            fastMode = false
+          }
+        } else {
+          if (event.code === "Enter") gameStarted = true
         }
       }
 
       function keyUpHandler(event) {
-        if (event.code === "Space") spaceKeyPressed = false
+        if (event.code === "ArrowDown") fastMode = false
       }
 
       function drawBrick(column, row, color) {
@@ -194,18 +201,18 @@
         }
       }
 
-      function drawBanner(...lines) {
-        const fontSize = 45
-        const interline = fontSize
-
+      function drawBanner({ size, style, color, bannerRgba }, ...lines) {
         ctx.beginPath()
         ctx.rect(canvasToGridWidth, canvasToGridHeight, gridWidth, gridHeight)
-        ctx.fillStyle = "rgba(255, 100, 100, 0.75)"
+        ctx.fillStyle = bannerRgba || "rgba(200, 150, 100, 0.75)"
         ctx.fill()
         ctx.closePath()
 
-        ctx.font = `bold ${fontSize}px sans-serif`
-        ctx.fillStyle = "rgb(70, 70, 70)"
+        const fontSize = size || 45
+        const interline = fontSize * 1.1
+
+        ctx.font = `${style || "bold"} ${fontSize}px sans-serif`
+        ctx.fillStyle = color || "rgb(70, 70, 70)"
         ctx.textAlign = "center"
         ctx.textBaseline = "middle"
 
@@ -307,7 +314,7 @@
 
       function movePieceDown() {
         tickCounter++
-        if (tickCounter < 4 && !spaceKeyPressed) return
+        if (tickCounter < 4 && !fastMode) return
 
         if (layingMode) {
           layPiece()
@@ -365,10 +372,22 @@
           drawPiece()
         }
 
-        if (gameOver) {
-          drawBanner("Game", "Over")
+        if (!gameStarted) {
+          drawBanner(
+            {
+              size: 35,
+              color: "black",
+              style: "",
+              bannerRgba: "rgba(75, 75, 255, 0.975)",
+            },
+            "Press",
+            "ENTER",
+            "to start"
+          )
+        } else if (gameOver) {
+          drawBanner({}, "Game", "Over")
         } else if (isPaused) {
-          drawBanner("Paused")
+          drawBanner({}, "Paused")
         }
       }
 
@@ -377,7 +396,7 @@
 
         draw()
 
-        if (gameOver || isPaused) return
+        if (!gameStarted || gameOver || isPaused) return
 
         if (movingPiece) {
           movePieceDown()
