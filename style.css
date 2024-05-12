@@ -1,0 +1,44 @@
+body {
+    margin: 0;
+    background-color: #f1f1f1;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.container {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.canvas {
+    border: 1px solid #000;
+    border-radius: 1rem;
+}
+
+.score {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.game {
+    width: min-content;
+    display: grid;
+    align-items: center;
+}
+
+.how-to-play-container {
+    justify-self: center;
+    position: absolute;
+    transform: translateX(150%);
+}
+
+.how-to-play {
+    text-align: center;
+}
+
+.how-to-play ul {
+    list-style-type: none;
+    padding: 0;
+}
