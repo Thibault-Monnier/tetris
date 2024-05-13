@@ -1,4 +1,5 @@
 body {
+    padding: 1rem;
     margin: 0;
     background-color: #f1f1f1;
     font-family: Arial, Helvetica, sans-serif;
@@ -7,8 +8,12 @@ body {
 .container {
     height: 100%;
     display: flex;
-    justify-content: center;
     align-items: center;
+    flex-direction: column;
+
+    @media (min-width: 840px) {
+        justify-content: center;
+    }
 }
 
 .canvas {
@@ -22,20 +27,13 @@ body {
     margin-bottom: 1rem;
 }
 
-.game {
-    width: min-content;
-    display: grid;
-    align-items: center;
-}
-
-.how-to-play-container {
-    justify-self: center;
-    position: absolute;
-    transform: translateX(150%);
-}
-
 .how-to-play {
     text-align: center;
+
+    @media (min-width: 840px) {
+        position: absolute;
+        transform: translateX(min(150%, 40vw));
+    }
 }
 
 .how-to-play ul {
